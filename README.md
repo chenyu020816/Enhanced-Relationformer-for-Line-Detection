@@ -1,12 +1,12 @@
 # Enhanced-Relationformer-for-Line-Detection
 
-## Run baseline model (Relationformer, LDTR)
+## Run baseline model (Relationformer)
 1. Requirment
     **SCC Module:** cuda/12.2 python3/3.9.9 gcc/9.3.0
 
 2. Build environment
     ```sh
-    cd baseline_models/{relatinoformer/LDTR}
+    cd baseline_models/relatinoformer
     # create virtual environment
     python -m venv .venv
     source .venv/bin/activate
