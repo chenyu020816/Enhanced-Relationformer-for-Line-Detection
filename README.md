@@ -1,5 +1,15 @@
 # Enhanced-Relationformer-for-Line-Detection
 
+# Setup
+```sh
+git clone https://github.com/chenyu020816/Enhanced-Relationformer-for-Line-Detection.git
+# create virtual environment
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+
 ## Run baseline model (Relationformer)
 **1. SCC Module Requirements:** cuda/12.2 python3/3.9.9 gcc/9.3.0
 
@@ -7,10 +17,6 @@
 
 ```sh
 cd baseline_models/relatinoformer
-# create virtual environment
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
 
 # compiling CUDA operators
 cd models/ops

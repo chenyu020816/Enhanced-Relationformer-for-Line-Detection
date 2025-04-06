@@ -101,10 +101,10 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
     """
     def aug_switch_handler(engine):
         epoch = engine.state.epoch
-        if epoch == 1:
+        if epoch < 31:
             print(">>> 使用 augmentation")
             train_loader.dataset.transform = get_train_transform(use_aug=True)
-        elif epoch == 31:
+        else:
             print(">>> 停用 augmentation")
             train_loader.dataset.transform = get_train_transform(use_aug=False)
 
