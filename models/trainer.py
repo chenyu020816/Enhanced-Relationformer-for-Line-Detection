@@ -16,6 +16,8 @@ import gc
 from utils import get_total_grad_norm
 
 from monai.transforms import Compose, RandFlipd, RandRotate90d, LoadImaged
+from ignite.engine import Events
+
 def get_train_transform(use_aug=True):
     if use_aug:
         return Compose([
@@ -191,7 +193,7 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
         train_handlers=train_handlers,
         # amp=fp16,
     )
-    trainer.add_event_handler("train_epoch_started", aug_switch_handler)
+    trainer.add_event_handler(Events.EPOCH_STARTED, aug_switch_handler)
     return trainer
 
 

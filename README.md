@@ -66,6 +66,8 @@ python generate_data.py
 1. Prepare config file
 The config file can be found at .configs/road_rgb_2D.yaml. Make custom changes if necessary.
 2. Training on multiple-GPU (use ```echo $CUDA_VISIBLE_DEVICES``` to check the index of available GPUs)
+
+example:
 ```sh
 python train.py --config configs/{your_config_file} --cuda_visible_device 0 1
 ```
