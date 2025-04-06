@@ -20,10 +20,7 @@ from ignite.engine import Events
 
 def get_train_transform(use_aug=True):
     if use_aug:
-        return Compose([
-            RandFlipd(keys=["image"], prob=0.5),
-            RandRotate90d(keys=["image"], prob=0.5),
-        ])
+        return Compose([])
     else:
         return Compose([])
 

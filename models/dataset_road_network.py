@@ -76,7 +76,7 @@ class Sat2GraphDataLoader(Dataset):
 
         image_data = tvf.normalize(torch.tensor(image_data, dtype=torch.float), mean=self.mean, std=self.std)
 
-
+        
         # correction of shift in the data
         # shift = [np.shape(image_data)[0]/2 -1.8, np.shape(image_data)[1]/2 + 8.3, 4.0]
         # coordinates = np.float32(np.asarray(vtk_data.points))
