@@ -1,8 +1,7 @@
 # Enhanced-Relationformer-for-Line-Detection
 
 ## Run baseline model (Relationformer)
-1. Requirment
-    **SCC Module:** cuda/12.2 python3/3.9.9 gcc/9.3.0
+1. **SCC Module Requirements:** cuda/12.2 python3/3.9.9 gcc/9.3.0
 
 2. Build environment
     ```sh
