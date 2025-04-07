@@ -51,6 +51,7 @@ class HungarianMatcher(nn.Module):
 
         # Compute the cls cost
         tgt_ids = torch.cat([torch.tensor([1]*v.shape[0]).to(out_nodes.device) for v in targets['nodes']])
+        tgt_ids = tgt_ids.type(torch.long)
         cost_class = -outputs["pred_logits"].flatten(0, 1).softmax(-1)[..., tgt_ids]
 
         # Final cost matrix

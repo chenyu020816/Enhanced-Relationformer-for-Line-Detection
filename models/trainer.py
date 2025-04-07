@@ -18,9 +18,17 @@ from utils import get_total_grad_norm
 from monai.transforms import Compose, RandFlipd, RandRotate90d, LoadImaged
 from ignite.engine import Events
 
+from models.augmentations import *
+
+
+
+
 def get_train_transform(use_aug=True):
     if use_aug:
-        return Compose([])
+        return ComposePair([
+            random_horizontal_flip,
+            random_vertical_flip,
+        ])
     else:
         return Compose([])
 
@@ -101,10 +109,10 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
     def aug_switch_handler(engine):
         epoch = engine.state.epoch
         if epoch < 31:
-            print(">>> 使用 augmentation")
+            print(">>> start augmentation")
             train_loader.dataset.transform = get_train_transform(use_aug=True)
         else:
-            print(">>> 停用 augmentation")
+            print(">>> stop augmentation")
             train_loader.dataset.transform = get_train_transform(use_aug=False)
 
     train_handlers = [
