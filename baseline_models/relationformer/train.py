@@ -169,7 +169,7 @@ def main(args):
         trainer.state.iteration = trainer.state.epoch_length * last_epoch
         logging.basicConfig(
             filename=os.path.join(log_dir, "log.txt"),  # Log output file
-            filemode="a",        # Overwrite the log file each time
+            filemode="a",       
             format="%(asctime)s - %(message)s",
             level=logging.INFO
         )
