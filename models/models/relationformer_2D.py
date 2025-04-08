@@ -33,7 +33,7 @@ class RelationFormer(nn.Module):
         self.with_box_refine = config.MODEL.DECODER.WITH_BOX_REFINE
         self.num_classes = config.MODEL.NUM_CLASSES
 
-        self.class_embed = nn.Linear(config.MODEL.DECODER.HIDDEN_DIM, 2)
+        self.class_embed = nn.Linear(config.MODEL.DECODER.HIDDEN_DIM, 2) # TODO should this be nn.Linear(config.MODEL.DECODER.HIDDEN_DIM, self.num_classes)
         self.bbox_embed = MLP(config.MODEL.DECODER.HIDDEN_DIM, config.MODEL.DECODER.HIDDEN_DIM, 4, 3)
         
         if config.MODEL.DECODER.RLN_TOKEN > 0:
