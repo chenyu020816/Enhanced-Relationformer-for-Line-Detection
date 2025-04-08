@@ -48,6 +48,7 @@ def main(args):
 
     import logging
     import ignite
+    from ignite.engine import Events, Engine
     import torch
     import torch.nn as nn
     from monai.data import DataLoader
@@ -60,6 +61,7 @@ def main(args):
     from models.matcher import build_matcher
     from losses import SetCriterion
     from ignite.contrib.handlers.tqdm_logger import ProgressBar
+    from ignite.metrics import RunningAverage
 
     torch.backends.cudnn.benchmark = True
     torch.backends.cudnn.enabled = True
@@ -159,15 +161,37 @@ def main(args):
         device,
         # fp16=args.fp16,
     )
-
+    log_dir = os.path.join(config.TRAIN.SAVE_PATH, "runs", '%s_%d' % (config.log.exp_name, config.DATA.SEED))
+    logging.getLogger("ignite").setLevel(logging.WARNING)
     if args.resume:
         evaluator.state.epoch = last_epoch
         trainer.state.epoch = last_epoch
         trainer.state.iteration = trainer.state.epoch_length * last_epoch
-
+        logging.basicConfig(
+            filename=os.path.join(log_dir, "log.txt"),  # Log output file
+            filemode="a",        # Overwrite the log file each time
+            format="%(asctime)s - %(message)s",
+            level=logging.INFO
+        )
+        logger = logging.getLogger()
+    else:
+        logging.basicConfig(
+        filename=os.path.join(log_dir, "log.txt"),  # Log output file
+        filemode="w",        # Overwrite the log file each time
+        format="%(asctime)s - %(message)s",
+        level=logging.INFO
+    )
+    logger = logging.getLogger()
+    RunningAverage(output_transform=lambda x: x["loss"]["total"]).attach(trainer,'total')
     pbar = ProgressBar()
     pbar.attach(trainer, output_transform= lambda x: {'loss': x["loss"]["total"]})
     # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    @trainer.on(Events.EPOCH_COMPLETED)
+    def log_epoch_metrics(engine):
+        metrics = engine.state.metrics
+        log_message = (f"Epoch {engine.state.epoch:4d} completed: "
+                    f"total={metrics['total']:.4f}")
+        logger.info(log_message)
     trainer.run()
 
 

@@ -226,6 +226,9 @@ class SetCriterion(nn.Module):
                 # all_edges.append(all_edges_)
                 edge_labels.append(torch.cat((torch.ones(pos_edge.shape[0], dtype=torch.long), torch.zeros(take_neg, dtype=torch.long)), 0))
 
+                all_edges_[:, 0] = all_edges_[:, 0].clamp(0, rearranged_object_token.shape[0] - 1)
+                all_edges_[:, 1] = all_edges_[:, 1].clamp(0, rearranged_object_token.shape[0] - 1)
+
                 # concatenate object token pairs with relation token
                 if self.rln_token > 0:
                     relation_feature.append(torch.cat((rearranged_object_token[all_edges_[:,0],:],rearranged_object_token[all_edges_[:,1],:],relation_token[batch_id,...].repeat(total_edge,1)), 1))
