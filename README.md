@@ -22,21 +22,6 @@ cd baseline_models/relatinoformer
 cd models/ops
 python setup.py install
 ```
-**Debug**
-```sh
-error in ms_deformable_im2col_cuda: no kernel image is available for execution on the device
-```
-If you see this error message when training the model, it is because everytime create a new SCC session, the GPU device might be different, so the CUDA operators need to be recompiled using the new GPU device by following steps.
-```sh
-cd models/ops
-
-# clean previous compiled operators
-python setup.py clean
-rm -rf build *.so
-
-# recompile CUDA operators
-python setup.py install
-```
 
 **3. Download data**
 Option 1: Using gdown
@@ -70,4 +55,20 @@ The config file can be found at .configs/road_rgb_2D.yaml. Make custom changes i
 example:
 ```sh
 python train.py --config configs/{your_config_file} --cuda_visible_device 0 1
+```
+
+**Debug**
+```sh
+error in ms_deformable_im2col_cuda: no kernel image is available for execution on the device
+```
+If you see this error message when training the model, it is because everytime create a new SCC session, the GPU device might be different, so the CUDA operators need to be recompiled using the new GPU device by following steps.
+```sh
+cd models/ops
+
+# clean previous compiled operators
+python setup.py clean
+rm -rf build *.so
+
+# recompile CUDA operators
+python setup.py install
 ```
