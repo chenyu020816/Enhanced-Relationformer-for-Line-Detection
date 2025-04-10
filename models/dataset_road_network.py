@@ -13,6 +13,7 @@ import pyvista
 from torch.utils.data import Dataset
 from scipy.sparse import csr_matrix
 import torchvision.transforms.functional as tvf
+import cv2
 
 from models.augmentations import *
 
@@ -25,14 +26,14 @@ from models.augmentations import *
 # )
 # train_transform = []
 train_transform = ComposeLineData([
-    lambda x: hori_flip(x, rm_padding=[0, 0, 0, 0], padding=[0, 0, 0, 0]),
+    # lambda x: hori_flip(x),
 ])
 # val_transform = Compose(
 #     [
 #         ToTensor,
 #     ]
 # )
-val_transform = []
+val_transform = None
 
 class Sat2GraphDataLoader(Dataset):
     """[summary]
@@ -71,36 +72,26 @@ class Sat2GraphDataLoader(Dataset):
             [type]: [description]
         """
         data = self.data[idx]
-        # image_data = imageio.v2.imread(data['img'])
-        # image_data = torch.tensor(image_data, dtype=torch.float).permute(2,0,1)
-        # image_data = image_data/255.0
-        # vtk_data = pyvista.read(data['vtp'])
-        # seg_data = imageio.v2.imread(data['seg'])
-        # seg_data = seg_data/np.max(seg_data)
-        # seg_data = torch.tensor(seg_data, dtype=torch.int).unsqueeze(0)
-
-        # image_data = tvf.normalize(image_data.clone().detach().float(), mean=self.mean, std=self.std)
-
-        image_data = imageio.v2.imread(data['img'])
-        image_data = image_data # /255.0
-        polydata = pyvista.read(data['vtp'])
+        
+        image_data = cv2.imread(data['img'])[:, :, ::-1]  # BGR to RGB
         seg_data = imageio.v2.imread(data['seg'])
-        seg_data = seg_data/np.max(seg_data)
-        seg_data = torch.tensor(seg_data, dtype=torch.int).unsqueeze(0)
+        seg_data = torch.from_numpy(seg_data).long().unsqueeze(0)
+        polydata = pyvista.read(data['vtp'])
+        print(polydata.points)
+        if self.transform:
+            print("sad")
+            h, w = image_data.shape[1:]
+            graph = Graxph(polydata, h, w)
+            line_data = LineData(image_data, graph)
+            new_line_data = self.transform(line_data)
+            # new_line_data = new_line_data.graph.to_polydata()
+            image_data = new_line_data.image
+            polydata = new_line_data.graph.to_polydata()
 
-
-        h, w = image_data.shape[1:]
-        graph = Graph(polydata, h, w)
-
-        line_data = LineData(image_data, graph)
-
-        new_line_data = train_transform(line_data)
-        image_data = torch.tensor(new_line_data.image).permute(2,0,1)
-        image_data = tvf.normalize(image_data.clone().detach().float(), mean=self.mean, std=self.std)
-        new_line_data = new_line_data.graph.to_polydata()
-        coordinates = torch.tensor(np.float32(np.asarray(new_line_data.points)), dtype=torch.float)
-        lines = torch.tensor(np.asarray(new_line_data.lines.reshape(-1, 3)), dtype=torch.int64)
-
+        image_data = torch.from_numpy(image_data).permute(2, 0, 1).float() / 255.0
+        image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
+        coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
+        lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))
 
         # correction of shift in the data
         # shift = [np.shape(image_data)[0]/2 -1.8, np.shape(image_data)[1]/2 + 8.3, 4.0]
