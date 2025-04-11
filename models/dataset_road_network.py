@@ -93,6 +93,7 @@ class Sat2GraphDataLoader(Dataset):
             line_data = LineData(image_data, graph)
             new_line_data = self.transform(line_data)
             image_data = new_line_data.image
+            polydata = new_line_data.graph.to_polydata()
         image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float() #/ 255.0
         image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
         coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))

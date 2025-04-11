@@ -650,8 +650,8 @@ def center_padding(data: LineData, target_size):
 def aug_pipeline(data):
     data = hori_flip(data)
     data = vert_flip(data)
-    data = random_hide(data, max_hide_size=(30, 30), p=1)
-    data = random_add_point(data, p=0.5)
+    data = random_hide(data, max_hide_size=(30, 30), p=0.3)
+    data = random_add_point(data, p=0.2)
     data = jpeg_compress(data)
     data = gaussian_blur(data)
     return data

@@ -29,12 +29,12 @@ from augmentations import *
 # )
 # train_transform = None
 def aug_pipeline(data):
-    data = hori_flip(data, p=1)
-    data = vert_flip(data, p=1)
-    data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
-    data = random_add_point(data, p=1, max_add_point_num=10, min_points_dist=10)
-    data = jpeg_compress(data, p=1)
-    data = gaussian_blur(data, p=1)
+    data = hori_flip(data)
+    data = vert_flip(data)
+    data = random_hide(data, max_hide_size=(30, 30), p=1)
+    data = random_add_point(data, p=0.2)
+    data = jpeg_compress(data)
+    data = gaussian_blur(data)
     return data
 
 
@@ -87,7 +87,7 @@ class Sat2GraphDataLoader(Dataset):
         """
         data = self.data[idx]
         image_data = cv2.imread(data['img'])[:, :, ::-1]  # BGR to RGB
-        cv2.imwrite(os.path.join("debug_vis", f"sample_{idx}_ori.png"), cv2.imread(data['img']))
+        # cv2.imwrite(os.path.join("debug_vis", f"sample_{idx}_ori.png"), cv2.imread(data['img']))
         seg_data = cv2.imread(data['seg'])[:, :, ::-1]
         seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
         polydata = pyvista.read(data['vtp'])
@@ -97,11 +97,11 @@ class Sat2GraphDataLoader(Dataset):
             line_data = LineData(image_data, graph)
             new_line_data = self.transform(line_data)
             image_data = new_line_data.image
+            polydata = new_line_data.graph.to_polydata()
         image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float() #/ 255.0
         image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
         coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
         lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))
-
         # correction of shift in the data
         # shift = [np.shape(image_data)[0]/2 -1.8, np.shape(image_data)[1]/2 + 8.3, 4.0]
         # coordinates = np.float32(np.asarray(vtk_data.points))
@@ -260,7 +260,7 @@ def main():
         print(config['log']['message'])
     config = dict2obj(config)
     print(config.DATA.DATA_PATH)
-    test_dataset(config, save_dir="debug_vis", num_samples=20)
+    test_dataset(config, save_dir="debug_vis", num_samples=100)
 
 
 if __name__ == "__main__":

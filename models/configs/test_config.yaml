@@ -5,10 +5,9 @@ DATA:
   DATA_PATH: '../data/train_data_g256_comb_less_neg_topo'        # Path to dataset, could be overwritten by command line argument
   TEST_DATA_PATH: '../../relationformer/data/usgs/train_data/'
   DATASET: 'US20-road-network-2D'     # Dataset name
-  IMG_SIZE: [256, 256]    # Input image size
+  IMG_SIZE: [128, 128]    # Input image size
   NUM_WORKERS: 4          # Number of data loading threads
   SEED: 10                # random seed for reproducibility
-
 MODEL:
   NUM_CLASSES: 2          # Number of classes, overwritten in data preparation
 
