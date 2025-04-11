@@ -82,7 +82,7 @@ class Graph:
             conns.append(2)
             for p in conn:
                 conns.append(p)
-        vtp_lines = np.array(conns)
+        vtp_lines = np.array(conns, dtype=np.int64)
         if len(vtp_points) > 0:
             self.polydata.points = vtp_points
             self.polydata.lines = vtp_lines
@@ -456,7 +456,7 @@ def random_crop(data: LineData, max_crop_size=None, fix_crop_size=False, rm_padd
                         new_point = get_new_point(point, conn_point, new_x = new_x)
                         new_point_is_valid = new_point[0] >= 0 and new_point[0] <= new_w and new_point[1] >= 0 and new_point[1] <= new_h 
                         if not new_point_is_valid:
-                            new_point = get_new_point(point, conn_point, new_x = new_y)
+                            new_point = get_new_point(point, conn_point, new_y = new_y)
                             new_point_is_valid = new_point[0] >= 0 and new_point[0] <= new_w and new_point[1] >= 0 and new_point[1] <= new_h 
                             if not new_point_is_valid:
                                 print(point, conn_point, new_x, new_y, new_point, crop_left, crop_top, new_h, new_w)
