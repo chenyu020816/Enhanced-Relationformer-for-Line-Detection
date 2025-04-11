@@ -28,7 +28,7 @@ from augmentations import *
 def aug_pipeline(data):
     data = hori_flip(data, p=1)
     data = vert_flip(data, p=1)
-    data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
+    # data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
     data = random_add_point(data, p=1, max_add_point_num=10, min_points_dist=10)
     data = jpeg_compress(data, p=1)
     data = gaussian_blur(data, p=1)
@@ -93,7 +93,7 @@ class Sat2GraphDataLoader(Dataset):
             new_line_data = self.transform(line_data)
             image_data = new_line_data.image
             polydata = new_line_data.graph.to_polydata()
-        image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float() #/ 255.0
+        image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float()/ 255.0
         image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
         coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
         lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))

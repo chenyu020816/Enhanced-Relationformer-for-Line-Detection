@@ -24,6 +24,7 @@ from augmentations import *
 
 
 def get_train_transform(use_aug=True):
+    use_aug=False
     if use_aug:
         return ComposeLineData([
             lambda x: aug_pipeline(x)

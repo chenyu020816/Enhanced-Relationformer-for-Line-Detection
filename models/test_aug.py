@@ -87,7 +87,8 @@ def test_dataset(config, save_dir="debug_output", num_samples=20):
     indices = random.sample(range(len(dataset)), num_samples)
 
     for idx in indices:
-        image, seg, coords, lines, _ = dataset[idx]
+        print(idx)
+        image, seg, coords, lines = dataset[idx]
         image = denormalize(image, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         image = image.permute(1, 2, 0).cpu().numpy()  # CHW -> HWC
         
