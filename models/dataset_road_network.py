@@ -25,8 +25,18 @@ from models.augmentations import *
 #     ]
 # )
 # train_transform = []
+def aug_pipeline(data):
+    data = hori_flip(data, p=1)
+    data = vert_flip(data, p=1)
+    data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
+    data = random_add_point(data, p=1, max_add_point_num=10, min_points_dist=10)
+    data = jpeg_compress(data, p=1)
+    data = gaussian_blur(data, p=1)
+    return data
+
 train_transform = ComposeLineData([
-    # lambda x: hori_flip(x),
+    lambda x: aug_pipeline(x)
+    
 ])
 # val_transform = Compose(
 #     [
@@ -72,23 +82,18 @@ class Sat2GraphDataLoader(Dataset):
             [type]: [description]
         """
         data = self.data[idx]
-        
         image_data = cv2.imread(data['img'])[:, :, ::-1]  # BGR to RGB
-        seg_data = imageio.v2.imread(data['seg'])
-        seg_data = torch.from_numpy(seg_data).long().unsqueeze(0)
+        cv2.imwrite(os.path.join("debug_vis", f"sample_{idx}_ori.png"), cv2.imread(data['img']))
+        seg_data = cv2.imread(data['seg'])[:, :, ::-1]
+        seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
         polydata = pyvista.read(data['vtp'])
-        print(polydata.points)
-        if self.transform:
-            print("sad")
-            h, w = image_data.shape[1:]
-            graph = Graxph(polydata, h, w)
+        if len(self.transform) != 0:
+            h, w, _ = image_data.shape
+            graph = Graph(polydata, h, w)
             line_data = LineData(image_data, graph)
             new_line_data = self.transform(line_data)
-            # new_line_data = new_line_data.graph.to_polydata()
             image_data = new_line_data.image
-            polydata = new_line_data.graph.to_polydata()
-
-        image_data = torch.from_numpy(image_data).permute(2, 0, 1).float() / 255.0
+        image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float() #/ 255.0
         image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
         coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
         lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))

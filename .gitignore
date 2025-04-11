@@ -177,3 +177,5 @@ cython_debug/
 
 data
 trained_weights
+*.png
+debug_vis/

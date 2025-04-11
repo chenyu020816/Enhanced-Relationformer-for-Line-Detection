@@ -25,9 +25,8 @@ from models.augmentations import *
 
 def get_train_transform(use_aug=True):
     if use_aug:
-        return ComposePair([
-            random_horizontal_flip,
-            random_vertical_flip,
+        return ComposeLineData([
+            lambda x: aug_pipeline(x)
         ])
     else:
         return Compose([])
@@ -108,7 +107,7 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
     """
     def aug_switch_handler(engine):
         epoch = engine.state.epoch
-        if epoch < 31:
+        if epoch < config.AUG.END_EPOCH:
             print(">>> start augmentation")
             train_loader.dataset.transform = get_train_transform(use_aug=True)
         else:
