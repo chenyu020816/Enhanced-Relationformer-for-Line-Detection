@@ -28,12 +28,18 @@ from augmentations import *
 #     ]
 # )
 # train_transform = None
+def aug_pipeline(data):
+    data = hori_flip(data, p=1)
+    data = vert_flip(data, p=1)
+    data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
+    data = random_add_point(data, p=1, max_add_point_num=10, min_points_dist=10)
+    data = jpeg_compress(data, p=1)
+    data = gaussian_blur(data, p=1)
+    return data
+
+
 train_transform = ComposeLineData([
-    lambda x: hori_flip(x, p=0.5),
-    lambda x: vert_flip(x, p=0.5),
-    lambda x: vert_flip(x, p=0.5),
-    lambda x: vert_flip(x, p=0.5),
-    lambda x: vert_flip(x, p=0.5),
+    lambda x: aug_pipeline(x)
     
 ])
 # val_transform = Compose(
@@ -85,18 +91,12 @@ class Sat2GraphDataLoader(Dataset):
         seg_data = cv2.imread(data['seg'])[:, :, ::-1]
         seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
         polydata = pyvista.read(data['vtp'])
-        # if len(self.transform) != 0:
-        print(polydata.points)
-        if True:
-            print("Aug")
+        if len(self.transform) != 0:
             h, w, _ = image_data.shape
             graph = Graph(polydata, h, w)
             line_data = LineData(image_data, graph)
             new_line_data = self.transform(line_data)
-            # new_line_data = new_line_data.graph.to_polydata()
             image_data = new_line_data.image
-            polydata = new_line_data.graph.to_polydata()
-        print(polydata.points)
         image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float() #/ 255.0
         image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
         coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
@@ -110,7 +110,7 @@ class Sat2GraphDataLoader(Dataset):
         # coordinates = torch.tensor(np.float32(np.asarray(vtk_data.points)), dtype=torch.float)
         # lines = torch.tensor(np.asarray(vtk_data.lines.reshape(-1, 3)), dtype=torch.int64)
 
-        return image_data, seg_data-0.5, coordinates[:,:2], lines[:,1:]
+        return image_data, seg_data-0.5, coordinates[:,:2], lines[:,1:], new_line_data
 
 
 def build_road_network_data(config, mode='train', split=0.95):
@@ -215,9 +215,8 @@ def denormalize(tensor, mean, std):
 
 def save_image_with_lines(image, coordinates, lines, out_path):
     for line in lines:
-
-        p1 = list(coordinates[line[0]] * 128 * 2)
-        p2 = list(coordinates[line[1]] * 128 * 2)
+        p1 = list(coordinates[line[0]] * image.shape[0])
+        p2 = list(coordinates[line[1]] * image.shape[0])
         p1 = (int(p1[1]), int(p1[0]))
         p2 = (int(p2[1]), int(p2[0]))
         cv2.circle(image, p1, color=(255, 0, 0), radius=1)
@@ -236,23 +235,22 @@ def test_dataset(config, save_dir="debug_output", num_samples=20):
     indices = random.sample(range(len(dataset)), num_samples)
 
     for idx in indices:
-        idx = 11681
-        image, seg, coords, lines = dataset[idx]
+        image, seg, coords, lines, _ = dataset[idx]
         image = denormalize(image, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         image = image.permute(1, 2, 0).cpu().numpy()  # CHW -> HWC
         
         image = (image * 1).astype(np.uint8).copy()
         img_path = os.path.join(save_dir, f"sample_{idx}_img.png")
-        cv2.imwrite(img_path, image[..., ::-1])
+        # cv2.imwrite(img_path, image[..., ::-1])
 
         vis_path = os.path.join(save_dir, f"sample_{idx}_vis.png")
         save_image_with_lines(image, coords.numpy(), lines.numpy(), vis_path)
 
         seg_path = os.path.join(save_dir, f"sample_{idx}_seg.png")
         seg_np = (seg.squeeze().numpy() * 255).astype(np.uint8)
-        cv2.imwrite(seg_path, seg_np)
+        # cv2.imwrite(seg_path, seg_np)
 
-        print(f"Saved sample {idx} to {save_dir}")
+        
 
 
 def main():
@@ -262,7 +260,7 @@ def main():
         print(config['log']['message'])
     config = dict2obj(config)
     print(config.DATA.DATA_PATH)
-    test_dataset(config, save_dir="debug_vis", num_samples=1)
+    test_dataset(config, save_dir="debug_vis", num_samples=20)
 
 
 if __name__ == "__main__":
