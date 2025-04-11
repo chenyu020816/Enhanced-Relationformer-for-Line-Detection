@@ -323,7 +323,7 @@ def prune_graph(graph: Graph, angle_thresh=160):
     dist_adj[edge[:, 0], edge[:, 1]] = np.sum((coord[edge[:, 0], :] - coord[edge[:, 1], :]) ** 2, 1)
     dist_adj[edge[:, 1], edge[:, 0]] = np.sum((coord[edge[:, 0], :] - coord[edge[:, 1], :]) ** 2, 1)
     start = True
-    node_mask = np.ones(coord.shape[0], dtype=np.bool)
+    node_mask = np.ones(coord.shape[0], dtype=bool)
     while start:
         degree = (dist_adj > 0).sum(1)
         deg_2 = list(np.where(degree == 2)[0])

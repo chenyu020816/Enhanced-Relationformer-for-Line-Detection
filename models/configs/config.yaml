@@ -1,12 +1,12 @@
 DATA:
   DIM: 2                  # data dimension
-  BATCH_SIZE: 32 #16
+  BATCH_SIZE: 64 #16
   TEST_BATCH_SIZE: 128 #16
-  DATA_PATH: '../../relationformer/data/usgs/train_data/'        # Path to dataset, could be overwritten by command line argument
-  TEST_DATA_PATH: '../../relationformer/data/usgs/train_data/''
+  DATA_PATH: './data/20cities/train_data/'        # Path to dataset, could be overwritten by command line argument
+  TEST_DATA_PATH: './data/20cities/test_data/'
   DATASET: 'US20-road-network-2D'     # Dataset name
-  IMG_SIZE: [256, 256]    # Input image size
-  NUM_WORKERS: 4          # Number of data loading threads
+  IMG_SIZE: [128, 128]    # Input image size
+  NUM_WORKERS: 8          # Number of data loading threads
   SEED: 10                # random seed for reproducibility
 
 MODEL:
@@ -78,8 +78,8 @@ TRAIN:
 
 
 log:
-  exp_name: 'baseline_road_resnet_def_detr_final_dec_4'
+  exp_name: '20cities_womixup'
   message: "Baseline 2D relationformer for 2D sat network"
 
 AUG:
-  END_EPOCH: 20
+  END_EPOCH: 80

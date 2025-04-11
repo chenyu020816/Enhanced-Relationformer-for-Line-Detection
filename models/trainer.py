@@ -18,7 +18,7 @@ from utils import get_total_grad_norm
 from monai.transforms import Compose, RandFlipd, RandRotate90d, LoadImaged
 from ignite.engine import Events
 
-from models.augmentations import *
+from augmentations import *
 
 
 

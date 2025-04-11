@@ -15,7 +15,7 @@ from scipy.sparse import csr_matrix
 import torchvision.transforms.functional as tvf
 import cv2
 
-from models.augmentations import *
+from augmentations import *
 
 # train_transform = Compose(
 #     [
