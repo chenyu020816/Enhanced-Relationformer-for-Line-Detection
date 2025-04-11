@@ -286,8 +286,8 @@ def get_new_point(point1, point2, new_x = None, new_y = None):
             left_point = point1
         ratio = (right_point[0] - new_x) / (right_point[0] - left_point[0] + 1e-9)
         y_offset = (right_point[1] - left_point[1]) * ratio
-        if left_point[1] < 0:
-            y_offset *= -1
+        # if left_point[1] < 0:
+        #     y_offset *= -1
         if right_point[1] == left_point[1]:
             new_x_pos = right_point[1]
         new_y_pos = right_point[1] - y_offset
@@ -303,8 +303,8 @@ def get_new_point(point1, point2, new_x = None, new_y = None):
         ratio = (top_point[1] - new_y) / (top_point[1] - bot_point[1] + 1e-9)
         x_offset = (top_point[0] - bot_point[0]) * ratio
 
-        if bot_point[1] < 0:
-            x_offset *= -1
+        # if bot_point[0] > top_point[0]:
+        #     x_offset *= -1
         new_x_pos = top_point[0] - x_offset
         if top_point[0] == bot_point[0]:
             new_x_pos = top_point[0]
@@ -461,11 +461,11 @@ def random_crop(data: LineData, max_crop_size=None, fix_crop_size=False, rm_padd
                             if not new_point_is_valid:
                                 print(point, conn_point, new_x, new_y, new_point, crop_left, crop_top, new_h, new_w)
                                 raise ValueError("New point error")
-                    if conn_point[0] < 0 or conn_point[0] > new_w:
+                    elif conn_point[0] < 0 or conn_point[0] > new_w:
                         new_x = 0 if crop_left else new_x_end
                         new_point = get_new_point(point, conn_point, new_x = new_x)
                         new_point_is_valid = new_point[0] >= 0 and new_point[0] <= new_w and new_point[1] >= 0 and new_point[1] <= new_h 
-                    if conn_point[1] < 0 or conn_point[1] > new_h:
+                    elif conn_point[1] < 0 or conn_point[1] > new_h:
                         new_y = 0 if crop_top else new_y_end
                         new_point = get_new_point(point, conn_point, new_y = new_y)
                         new_point_is_valid = new_point[0] >= 0 and new_point[0] <= new_w and new_point[1] >= 0 and new_point[1] <= new_h 
