@@ -82,9 +82,8 @@ class Sat2GraphDataLoader(Dataset):
             [type]: [description]
         """
         data = self.data[idx]
-        image_data = cv2.imread(data['img'])[:, :, ::-1]  # BGR to RGB
-        cv2.imwrite(os.path.join("debug_vis", f"sample_{idx}_ori.png"), cv2.imread(data['img']))
-        seg_data = cv2.imread(data['seg'])[:, :, ::-1]
+        image_data = imageio.imread(data['img'])
+        seg_data = imageio.imread(data['seg'])
         seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
         polydata = pyvista.read(data['vtp'])
         if len(self.transform) != 0:
