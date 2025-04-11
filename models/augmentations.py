@@ -76,7 +76,7 @@ class Graph:
             x = coord[0] / self.w
             point = [y, x, 0]
             points.append(point)
-        vtp_points = np.array(points)
+        vtp_points = np.array(points, dtype=np.int64)
         conns = []
         for conn in self.lines:
             conns.append(2)
