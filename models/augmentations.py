@@ -454,7 +454,7 @@ def random_crop(data: LineData, max_crop_size=None, fix_crop_size=False, rm_padd
                     if (conn_point[0] < 0 or conn_point[0] > new_w) and (conn_point[1] < 0 or conn_point[1] > new_h ):
                         new_x = 0 if crop_left else new_x_end
                         new_y = 0 if crop_top else new_y_end
-                        get_new_point(point, conn_point, new_x = new_x, new_y = new_y)
+                        new_point = get_new_point(point, conn_point, new_x = new_x, new_y = new_y)
                         new_point_is_valid = new_point[0] >= 0 and new_point[0] <= new_w and new_point[1] >= 0 and new_point[1] <= new_h 
                     if conn_point[0] < 0 or conn_point[0] > new_w:
                         new_x = 0 if crop_left else new_x_end
