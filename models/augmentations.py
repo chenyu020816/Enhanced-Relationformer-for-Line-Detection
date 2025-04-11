@@ -415,7 +415,7 @@ def random_crop(data: LineData, max_crop_size=None, fix_crop_size=False, rm_padd
         # invalid_y_start, invalid_y_end = new_h, h
     if crop_left:
         new_x_start, new_x_end = width_crop_size, w
-        invalid_x_start, invalid_x_end = 0, width_crop_size
+        # invalid_x_start, invalid_x_end = 0, width_crop_size
         points = [(point[0] - width_crop_size, point[1]) for point in points]
     else:
         new_x_start, new_x_end = 0, new_w
@@ -461,6 +461,7 @@ def random_crop(data: LineData, max_crop_size=None, fix_crop_size=False, rm_padd
                         new_point_is_valid = new_point[0] >= 0 and new_point[0] <= new_w and new_point[1] >= 0 and new_point[1] <= new_h 
                     
                     if not new_point_is_valid:
+                        print(new_x, new_y, new_point, crop_left, crop_top, new_h, new_w)
                         raise ValueError("New point error")
                     x_dist = (point[0] - new_point[0]) ** 2
                     y_dist = (point[1] - new_point[1]) ** 2
