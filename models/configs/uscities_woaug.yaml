@@ -57,7 +57,7 @@ MODEL:
     C_NODE: 5
 
 TRAIN:
-  EPOCHS: 100
+  EPOCHS: 50
   LR: 2e-4
   LR_BACKBONE: 2e-5
   WEIGHT_DECAY: 1e-4
@@ -83,3 +83,7 @@ log:
 
 AUG:
   END_EPOCH: -1
+  TYPE: 'weak'
+  FULL_AUG: False
+  MIXUP: False
+

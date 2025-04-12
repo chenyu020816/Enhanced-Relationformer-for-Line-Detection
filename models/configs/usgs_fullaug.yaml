@@ -83,6 +83,6 @@ log:
 
 AUG:
   END_EPOCH: 40
-  TYPE: 'weak'
-  FULL_AUG: False
-  MIXUP: False
+  TYPE: 'strong'
+  FULL_AUG: True
+  MIXUP: True

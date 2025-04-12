@@ -131,15 +131,17 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
     def aug_switch_handler(engine):
         epoch = engine.state.epoch
         if config.AUG.FULL_AUG:
-            if epoch < 50:
+            if epoch < int(config.TRAIN.EPOCHS * 0.6):
                 print(">>> Start strong augmentation")
                 train_loader.dataset.transform = get_train_transform(use_aug=True, type='strong')
-            elif epoch < 80:
+            elif epoch < config.AUG.END_EPOCH:
                 print(">>> Start weak augmentation")
                 train_loader.dataset.transform = get_train_transform(use_aug=True, type='weak')
+                train_loader.dataset.mixup = False
             else:
                 print(">>> Stop augmentation")
                 train_loader.dataset.transform = get_train_transform(use_aug=False, type=config.AUG.TYPE)
+                train_loader.dataset.mixup = False
         else:
             if epoch < config.AUG.END_EPOCH:
                 print(">>> Start augmentation")
@@ -147,6 +149,7 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
             else:
                 print(">>> Stop augmentation")
                 train_loader.dataset.transform = get_train_transform(use_aug=False, type=config.AUG.TYPE)
+                train_loader.dataset.mixup = False
 
     train_handlers = [
         LrScheduleHandler(
