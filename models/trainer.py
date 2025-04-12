@@ -33,7 +33,7 @@ def weak_aug_pipeline(data):
 def strong_aug_pipeline(data):
     data = hori_flip(data, p=0.5)
     data = vert_flip(data, p=0.5)
-    data = random_hide(data, max_hide_size=(30, 30), fix_hide_size=True, p=0.3)
+    data = random_hide(data, max_hide_size=(30, 30), fix_hide_size=False, p=0.3)
     data = random_add_point(data, p=0.3, max_add_point_num=10, min_points_dist=10)
     data = jpeg_compress(data, p=0.3)
     data = gaussian_blur(data, p=0.3)
@@ -130,7 +130,7 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
     """
     def aug_switch_handler(engine):
         epoch = engine.state.epoch
-        if config.AUG_FULL_AUG:
+        if config.AUG.FULL_AUG:
             if epoch < 50:
                 print(">>> Start strong augmentation")
                 train_loader.dataset.transform = get_train_transform(use_aug=True, type='strong')

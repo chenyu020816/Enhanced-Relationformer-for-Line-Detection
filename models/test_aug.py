@@ -52,7 +52,7 @@ def weak_aug_pipeline(data):
 def strong_aug_pipeline(data):
     data = hori_flip(data, p=0.5)
     data = vert_flip(data, p=0.5)
-    data = random_hide(data, max_hide_size=(30, 30), fix_hide_size=True, p=0.3)
+    data = random_hide(data, max_hide_size=(30, 30), fix_hide_size=False, p=1)
     data = random_add_point(data, p=0.3, max_add_point_num=10, min_points_dist=10)
     data = jpeg_compress(data, p=0.3)
     data = gaussian_blur(data, p=0.3)
@@ -90,16 +90,16 @@ def test_dataset(config, save_dir="debug_output", num_samples=20):
 
     dataset = build_road_network_data(config, mode='train')  # or mode='split' / 'test'
     dataset.transform =  ComposeLineData([
-                lambda x: weak_aug_pipeline(x)
+                lambda x: strong_aug_pipeline(x)
             ]) 
     print(f"Total samples: {len(dataset)}")
     indices = random.sample(range(len(dataset)), num_samples)
 
     for idx in indices:
         print(idx)
+    
         image, seg, coords, lines = dataset[idx]
         image = denormalize(image, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        
         image = image.permute(1, 2, 0).cpu().numpy()  # CHW -> HWC
         image = image[:, :, ::-1] 
         image = (image * 255).astype(np.uint8).copy()
@@ -123,7 +123,7 @@ def main():
         print(config['log']['message'])
     config = dict2obj(config)
     print(config.DATA.DATA_PATH)
-    test_dataset(config, save_dir="debug_vis", num_samples=100)
+    test_dataset(config, save_dir="debug_vis", num_samples=200)
 
 
 if __name__ == "__main__":

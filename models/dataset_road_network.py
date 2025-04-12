@@ -170,7 +170,7 @@ def build_road_network_data(config, mode='train', split=0.95):
         random.seed(config.DATA.SEED)
         random.shuffle(data_dicts)
         train_split = int(split*len(data_dicts))
-
+        train_files, val_files = data_dicts[:train_split], data_dicts[train_split:]
         train_ds = Sat2GraphDataLoader(
             data=train_files,
             transform=train_transform,
