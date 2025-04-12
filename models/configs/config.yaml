@@ -83,3 +83,5 @@ log:
 
 AUG:
   END_EPOCH: 80
+  TYPE: 'weak'
+  FULL_AUG: False

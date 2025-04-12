@@ -19,16 +19,38 @@ from monai.transforms import Compose, RandFlipd, RandRotate90d, LoadImaged
 from ignite.engine import Events
 
 from augmentations import *
-from dataset_road_network import aug_pipeline
+
+def weak_aug_pipeline(data):
+    data = hori_flip(data, p=0.5)
+    data = vert_flip(data, p=0.5)
+    # data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
+    data = random_add_point(data, p=0.3, max_add_point_num=10, min_points_dist=10)
+    data = jpeg_compress(data, p=0.3)
+    data = gaussian_blur(data, p=0.3)
+    return data
 
 
+def strong_aug_pipeline(data):
+    data = hori_flip(data, p=0.5)
+    data = vert_flip(data, p=0.5)
+    data = random_hide(data, max_hide_size=(30, 30), fix_hide_size=True, p=0.3)
+    data = random_add_point(data, p=0.3, max_add_point_num=10, min_points_dist=10)
+    data = jpeg_compress(data, p=0.3)
+    data = gaussian_blur(data, p=0.3)
+    return data
 
-def get_train_transform(use_aug=True):
+
+def get_train_transform(use_aug=True, type='weak'):
      
     if use_aug:
-        return ComposeLineData([
-            lambda x: aug_pipeline(x)
-        ])
+        if type == 'weak':
+            return ComposeLineData([
+                lambda x: weak_aug_pipeline(x)
+            ])
+        elif type == 'strong':
+            return ComposeLineData([
+                lambda x: strong_aug_pipeline(x)
+            ])
     else:
         return Compose([])
 
@@ -108,12 +130,23 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
     """
     def aug_switch_handler(engine):
         epoch = engine.state.epoch
-        if epoch < config.AUG.END_EPOCH:
-            print(">>> start augmentation")
-            train_loader.dataset.transform = get_train_transform(use_aug=True)
+        if config.AUG_FULL_AUG:
+            if epoch < 50:
+                print(">>> Start strong augmentation")
+                train_loader.dataset.transform = get_train_transform(use_aug=True, type='strong')
+            elif epoch < 80:
+                print(">>> Start weak augmentation")
+                train_loader.dataset.transform = get_train_transform(use_aug=True, type='weak')
+            else:
+                print(">>> Stop augmentation")
+                train_loader.dataset.transform = get_train_transform(use_aug=False, type=config.AUG.TYPE)
         else:
-            print(">>> stop augmentation")
-            train_loader.dataset.transform = get_train_transform(use_aug=False)
+            if epoch < config.AUG.END_EPOCH:
+                print(">>> Start augmentation")
+                train_loader.dataset.transform = get_train_transform(use_aug=True, type=config.AUG.TYPE)
+            else:
+                print(">>> Stop augmentation")
+                train_loader.dataset.transform = get_train_transform(use_aug=False, type=config.AUG.TYPE)
 
     train_handlers = [
         LrScheduleHandler(
