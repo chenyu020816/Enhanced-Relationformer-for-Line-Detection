@@ -647,16 +647,6 @@ def center_padding(data: LineData, target_size):
     return newLineData
 
 
-def aug_pipeline(data):
-    data = hori_flip(data)
-    data = vert_flip(data)
-    data = random_hide(data, max_hide_size=(30, 30), p=0.3)
-    data = random_add_point(data, p=0.2)
-    data = jpeg_compress(data)
-    data = gaussian_blur(data)
-    return data
-
-
 def mosaic(datas: list[LineData], padding=(5, 5), add_aug=True, prop=0.4):
     image_split = 3
     image = datas[0].image

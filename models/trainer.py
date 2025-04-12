@@ -19,12 +19,12 @@ from monai.transforms import Compose, RandFlipd, RandRotate90d, LoadImaged
 from ignite.engine import Events
 
 from augmentations import *
-
+from dataset_road_network import aug_pipeline
 
 
 
 def get_train_transform(use_aug=True):
-    use_aug=False
+     
     if use_aug:
         return ComposeLineData([
             lambda x: aug_pipeline(x)

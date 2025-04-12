@@ -26,25 +26,16 @@ from augmentations import *
 # )
 # train_transform = []
 def aug_pipeline(data):
-    data = hori_flip(data, p=1)
-    data = vert_flip(data, p=1)
+    data = hori_flip(data, p=0.5)
+    data = vert_flip(data, p=0.5)
     # data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
-    data = random_add_point(data, p=1, max_add_point_num=10, min_points_dist=10)
-    data = jpeg_compress(data, p=1)
-    data = gaussian_blur(data, p=1)
+    data = random_add_point(data, p=0.3, max_add_point_num=10, min_points_dist=10)
+    data = jpeg_compress(data, p=0.3)
+    data = gaussian_blur(data, p=0.3)
     return data
 
-train_transform = ComposeLineData([
-    lambda x: aug_pipeline(x)
-    
-])
-# val_transform = Compose(
-#     [
-#         ToTensor,
-#     ]
-# )
-val_transform = ComposeLineData([
-])
+train_transform = ComposeLineData([])
+val_transform = ComposeLineData([])
 
 class Sat2GraphDataLoader(Dataset):
     """[summary]

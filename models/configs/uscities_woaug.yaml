@@ -82,4 +82,4 @@ log:
   message: "Baseline 2D relationformer for 2D sat network"
 
 AUG:
-  END_EPOCH: 80
+  END_EPOCH: -1
