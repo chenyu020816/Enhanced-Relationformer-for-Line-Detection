@@ -648,6 +648,14 @@ def center_padding(data: LineData, target_size):
 
 
 def mosaic(datas: list[LineData], padding=(5, 5), add_aug=True, prop=0.4):
+    def weak_aug_pipeline(data):
+        data = hori_flip(data, p=0.5)
+        data = vert_flip(data, p=0.5)
+        # data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
+        data = random_add_point(data, p=0.3, max_add_point_num=10, min_points_dist=10)
+        data = jpeg_compress(data, p=0.3)
+        data = gaussian_blur(data, p=0.3)
+        return data
     image_split = 3
     image = datas[0].image
     h, w, _ = image.shape
@@ -681,7 +689,7 @@ def mosaic(datas: list[LineData], padding=(5, 5), add_aug=True, prop=0.4):
         crop_size = [abs(h-image_range_list[i][1][1]-image_range_list[i][1][0]), abs(w-image_range_list[i][0][1]-image_range_list[i][0][0])]
         crop_data = random_crop(data, max_crop_size=crop_size, fix_crop_size=True, rm_padding=(5, 5), p=1)
         if add_aug:
-            crop_data = aug_pipeline(crop_data)
+            crop_data = weak_aug_pipeline(crop_data)
         new_image[
             (image_range_list[i][1][0]):(image_range_list[i][1][1]),
             (image_range_list[i][0][0]):(image_range_list[i][0][1]), 

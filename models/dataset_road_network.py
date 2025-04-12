@@ -35,7 +35,7 @@ class Sat2GraphDataLoader(Dataset):
     Args:
         Dataset ([type]): [description]
     """
-    def __init__(self, data, transform):
+    def __init__(self, data, transform, mixup=False):
         """[summary]
 
         Args:
@@ -44,6 +44,7 @@ class Sat2GraphDataLoader(Dataset):
         """
         self.data = data
         self.transform = transform
+        self.mixup = mixup
 
         self.mean = [0.485, 0.456, 0.406]
         self.std = [0.229, 0.224, 0.225]
@@ -65,23 +66,38 @@ class Sat2GraphDataLoader(Dataset):
         Returns:
             [type]: [description]
         """
-        data = self.data[idx]
-        image_data = imageio.imread(data['img'])
-        seg_data = imageio.imread(data['seg'])
-        seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
-        polydata = pyvista.read(data['vtp'])
-        if len(self.transform) != 0:
-            h, w, _ = image_data.shape
-            graph = Graph(polydata, h, w)
-            line_data = LineData(image_data, graph)
-            new_line_data = self.transform(line_data)
+        if not self.mixup:
+            data = self.data[idx]
+            image_data = imageio.imread(data['img'])
+            seg_data = imageio.imread(data['seg'])
+            seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
+            polydata = pyvista.read(data['vtp'])
+            if len(self.transform) != 0:
+                h, w, _ = image_data.shape
+                graph = Graph(polydata, h, w)
+                line_data = LineData(image_data, graph)
+                new_line_data = self.transform(line_data)
+                image_data = new_line_data.image
+                polydata = new_line_data.graph.to_polydata()
+            image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float()/ 255.0
+            image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
+            coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
+            lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))
+        else:
+            data = self.get_linedata(idx)
+            indices = random.sample(range(len(self.data)), 3)
+            datas = []
+            datas.append(data)
+            for idx in indices: 
+                data = self.get_linedata(idx)
+                datas.append(data)
+            new_line_data = mosaic(datas)
             image_data = new_line_data.image
             polydata = new_line_data.graph.to_polydata()
-        image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float()/ 255.0
-        image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
-        coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
-        lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))
-
+            image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float()/ 255.0
+            image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
+            coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
+            lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))
         # correction of shift in the data
         # shift = [np.shape(image_data)[0]/2 -1.8, np.shape(image_data)[1]/2 + 8.3, 4.0]
         # coordinates = np.float32(np.asarray(vtk_data.points))
@@ -92,6 +108,17 @@ class Sat2GraphDataLoader(Dataset):
 
         return image_data, seg_data-0.5, coordinates[:,:2], lines[:,1:]
 
+    def get_linedata(self, idx):
+        data = self.data[idx]
+        image_data = imageio.imread(data['img'])
+        seg_data = imageio.imread(data['seg'])
+        seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
+        polydata = pyvista.read(data['vtp'])
+        h, w, _ = image_data.shape
+        graph = Graph(polydata, h, w)
+        line_data = LineData(image_data, graph)
+
+        return line_data
 
 def build_road_network_data(config, mode='train', split=0.95):
     """[summary]
@@ -126,6 +153,7 @@ def build_road_network_data(config, mode='train', split=0.95):
         ds = Sat2GraphDataLoader(
             data=data_dicts,
             transform=train_transform,
+            mixup=config.AUG.MIXUP
         )
         return ds
     elif mode=='test':
@@ -174,9 +202,11 @@ def build_road_network_data(config, mode='train', split=0.95):
         train_ds = Sat2GraphDataLoader(
             data=train_files,
             transform=train_transform,
+            mixup=config.AUG.MIXUP
         )
         val_ds = Sat2GraphDataLoader(
             data=val_files,
             transform=val_transform,
+            mixup=False
         )
         return train_ds, val_ds
