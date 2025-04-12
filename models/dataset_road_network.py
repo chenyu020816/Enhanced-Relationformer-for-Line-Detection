@@ -66,24 +66,13 @@ class Sat2GraphDataLoader(Dataset):
         Returns:
             [type]: [description]
         """
-        if not self.mixup:
-            data = self.data[idx]
-            image_data = imageio.imread(data['img'])
-            seg_data = imageio.imread(data['seg'])
-            seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
-            polydata = pyvista.read(data['vtp'])
-            if len(self.transform) != 0:
-                h, w, _ = image_data.shape
-                graph = Graph(polydata, h, w)
-                line_data = LineData(image_data, graph)
-                new_line_data = self.transform(line_data)
-                image_data = new_line_data.image
-                polydata = new_line_data.graph.to_polydata()
-            image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float()/ 255.0
-            image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
-            coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
-            lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))
-        else:
+        data = self.data[idx]
+        
+        seg_data = imageio.imread(data['seg'])
+        seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
+        
+
+        if self.mixup and random.random() > 0.7:
             data = self.get_linedata(idx)
             indices = random.sample(range(len(self.data)), 3)
             datas = []
@@ -98,6 +87,21 @@ class Sat2GraphDataLoader(Dataset):
             image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
             coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
             lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))
+        else:
+            image_data = imageio.imread(data['img'])
+            polydata = pyvista.read(data['vtp'])
+            if len(self.transform) != 0:
+                h, w, _ = image_data.shape
+                graph = Graph(polydata, h, w)
+                line_data = LineData(image_data, graph)
+                new_line_data = self.transform(line_data)
+                image_data = new_line_data.image
+                polydata = new_line_data.graph.to_polydata()
+            image_data = torch.from_numpy(image_data.copy()).permute(2, 0, 1).float()/ 255.0
+            image_data = tvf.normalize(image_data, mean=self.mean, std=self.std)
+            coordinates = torch.from_numpy(np.asarray(polydata.points, dtype=np.float32))
+            lines = torch.from_numpy(polydata.lines.reshape(-1, 3).astype(np.int64))
+        
         # correction of shift in the data
         # shift = [np.shape(image_data)[0]/2 -1.8, np.shape(image_data)[1]/2 + 8.3, 4.0]
         # coordinates = np.float32(np.asarray(vtk_data.points))
@@ -111,8 +115,6 @@ class Sat2GraphDataLoader(Dataset):
     def get_linedata(self, idx):
         data = self.data[idx]
         image_data = imageio.imread(data['img'])
-        seg_data = imageio.imread(data['seg'])
-        seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
         polydata = pyvista.read(data['vtp'])
         h, w, _ = image_data.shape
         graph = Graph(polydata, h, w)
