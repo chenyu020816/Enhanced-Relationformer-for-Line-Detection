@@ -72,7 +72,7 @@ class Sat2GraphDataLoader(Dataset):
         seg_data = torch.from_numpy(seg_data.copy()).long().unsqueeze(0)
         
 
-        if self.mixup and random.random() > 0.7:
+        if self.mixup: # and random.random() > 0.7:
             data = self.get_linedata(idx)
             indices = random.sample(range(len(self.data)), 3)
             datas = []

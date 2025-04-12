@@ -319,9 +319,16 @@ def get_points_dist(point1, point2):
 def prune_graph(graph: Graph, angle_thresh=160):
     coord = np.array(graph.points)
     edge = np.array(graph.lines)
+    if edge.shape[0] == 0:
+        return graph
     dist_adj = np.zeros((coord.shape[0], coord.shape[0]))
-    dist_adj[edge[:, 0], edge[:, 1]] = np.sum((coord[edge[:, 0], :] - coord[edge[:, 1], :]) ** 2, 1)
-    dist_adj[edge[:, 1], edge[:, 0]] = np.sum((coord[edge[:, 0], :] - coord[edge[:, 1], :]) ** 2, 1)
+    try:
+        dist_adj[edge[:, 0], edge[:, 1]] = np.sum((coord[edge[:, 0], :] - coord[edge[:, 1], :]) ** 2, 1)
+        dist_adj[edge[:, 1], edge[:, 0]] = np.sum((coord[edge[:, 0], :] - coord[edge[:, 1], :]) ** 2, 1)
+    except:
+        print(coord)
+        import pdb
+        pdb.set_trace()
     start = True
     node_mask = np.ones(coord.shape[0], dtype=bool)
     while start:

@@ -85,3 +85,4 @@ AUG:
   END_EPOCH: -1
   TYPE: 'weak'
   FULL_AUG: False
+  MIXUP: False
