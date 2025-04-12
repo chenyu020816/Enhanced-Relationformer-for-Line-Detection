@@ -136,7 +136,7 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
                 train_loader.dataset.transform = get_train_transform(use_aug=True, type='strong')
             elif epoch < config.AUG.END_EPOCH:
                 print(">>> Start weak augmentation")
-                train_loader.dataset.transform = get_train_transform(use_aug=True, type='weak')
+                train_loader.dataset.transform = get_train_transform(use_aug=True, type='strong')
                 train_loader.dataset.mixup = False
             else:
                 print(">>> Stop augmentation")
