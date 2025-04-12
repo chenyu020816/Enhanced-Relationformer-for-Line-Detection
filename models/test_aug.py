@@ -39,17 +39,24 @@ def aug_pipeline(data):
     return data
 
 
-train_transform = ComposeLineData([
-    lambda x: aug_pipeline(x)
-    
-])
-# val_transform = Compose(
-#     [
-#         ToTensor,
-#     ]
-# )
-val_transform = None
+def weak_aug_pipeline(data):
+    data = hori_flip(data, p=0.5)
+    data = vert_flip(data, p=0.5)
+    # data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
+    data = random_add_point(data, p=0.3, max_add_point_num=10, min_points_dist=10)
+    data = jpeg_compress(data, p=0.3)
+    data = gaussian_blur(data, p=0.3)
+    return data
 
+
+def strong_aug_pipeline(data):
+    data = hori_flip(data, p=0.5)
+    data = vert_flip(data, p=0.5)
+    data = random_hide(data, max_hide_size=(30, 30), fix_hide_size=True, p=0.3)
+    data = random_add_point(data, p=0.3, max_add_point_num=10, min_points_dist=10)
+    data = jpeg_compress(data, p=0.3)
+    data = gaussian_blur(data, p=0.3)
+    return data
 
 class obj:
     def __init__(self, dict1):
@@ -75,14 +82,16 @@ def save_image_with_lines(image, coordinates, lines, out_path):
         cv2.circle(image, p2, color=(255, 0, 0), radius=1)
         cv2.line(image, p1, p2, color=(0, 255, 0), thickness=1)
 
-    cv2.imwrite(out_path, image[..., ::-1])  # RGB -> BGR
+    cv2.imwrite(out_path, image)  # RGB -> BGR
 
 
 def test_dataset(config, save_dir="debug_output", num_samples=20):
     os.makedirs(save_dir, exist_ok=True)
 
     dataset = build_road_network_data(config, mode='train')  # or mode='split' / 'test'
-
+    dataset.transform =  ComposeLineData([
+                lambda x: weak_aug_pipeline(x)
+            ]) 
     print(f"Total samples: {len(dataset)}")
     indices = random.sample(range(len(dataset)), num_samples)
 
@@ -90,9 +99,10 @@ def test_dataset(config, save_dir="debug_output", num_samples=20):
         print(idx)
         image, seg, coords, lines = dataset[idx]
         image = denormalize(image, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        image = image.permute(1, 2, 0).cpu().numpy()  # CHW -> HWC
         
-        image = (image * 1).astype(np.uint8).copy()
+        image = image.permute(1, 2, 0).cpu().numpy()  # CHW -> HWC
+        image = image[:, :, ::-1] 
+        image = (image * 255).astype(np.uint8).copy()
         img_path = os.path.join(save_dir, f"sample_{idx}_img.png")
         # cv2.imwrite(img_path, image[..., ::-1])
 

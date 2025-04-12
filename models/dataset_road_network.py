@@ -110,7 +110,9 @@ def build_road_network_data(config, mode='train', split=0.95):
     img_files = []
     vtk_files = []
     seg_files = []
-
+    train_transform = ComposeLineData([])
+    val_transform = ComposeLineData([])
+  
     for file_ in os.listdir(img_folder):
         file_ = file_[:-8]
         img_files.append(os.path.join(img_folder, file_+'data.png'))
@@ -168,13 +170,11 @@ def build_road_network_data(config, mode='train', split=0.95):
         random.seed(config.DATA.SEED)
         random.shuffle(data_dicts)
         train_split = int(split*len(data_dicts))
-        train_files, val_files = data_dicts[:train_split], data_dicts[train_split:]
-        train_transform = ComposeLineData([])
+
         train_ds = Sat2GraphDataLoader(
             data=train_files,
             transform=train_transform,
         )
-        val_transform = ComposeLineData([])
         val_ds = Sat2GraphDataLoader(
             data=val_files,
             transform=val_transform,
