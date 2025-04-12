@@ -43,7 +43,8 @@ train_transform = ComposeLineData([
 #         ToTensor,
 #     ]
 # )
-val_transform = None
+val_transform = ComposeLineData([
+])
 
 class Sat2GraphDataLoader(Dataset):
     """[summary]
