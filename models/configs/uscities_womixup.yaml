@@ -78,7 +78,7 @@ TRAIN:
 
 
 log:
-  exp_name: '20cities_womixuphide'
+  exp_name: '20cities_womixup'
   message: "Baseline 2D relationformer for 2D sat network"
 
 AUG:
