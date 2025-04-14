@@ -24,11 +24,11 @@ python setup.py install
 **3. Download data**
 Option 1: Using gdown
 ```sh
-gdown 1mgkUslw-tgT8EpS6ulRyA6gGy16IhXqc -O usgs.zip
+gdown 1BYXRnSLP1XlbmkMJqwr4BKFjmtPdPO7A -O usgs.zip
 gdown 1Kd8TXYPv0LEAXC0NaaeSuKW_l5cBs605 -O uscities.zip
 ```
 Option 2: Download from google drive
-usgs data: https://drive.google.com/file/d/1mgkUslw-tgT8EpS6ulRyA6gGy16IhXqc/view?usp=drive_link
+usgs data: https://drive.google.com/file/d/1BYXRnSLP1XlbmkMJqwr4BKFjmtPdPO7A/view?usp=sharing
 uscities data: https://drive.google.com/file/d/1Kd8TXYPv0LEAXC0NaaeSuKW_l5cBs605/view?usp=drive_link
 
 Unzip the file and move to data folder
@@ -36,8 +36,8 @@ Unzip the file and move to data folder
 unzip usgs.zip
 unzip uscities.zip
 
-mv train_data_g256_comb_less_neg_topo ./data
-mv 20cities ./data
+mv usgs ./data/
+mv 20cities ./data/
 ```
 
 **4. Data preparation (for uscities data)**
