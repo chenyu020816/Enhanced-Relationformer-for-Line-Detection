@@ -22,3 +22,6 @@ tensorboard
 gdown
 urllib3<2.0
 huggingface_hub
+svgwrite
+rtree
+hopcroftkarp
