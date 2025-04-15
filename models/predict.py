@@ -2,12 +2,13 @@ import argparse
 import cv2
 import json
 import torch
+import torchvision.transforms.functional as tvf
 import os
 import yaml 
 import numpy as np
 
 from models import build_model
-from models.inference import relation_infer
+from inference import relation_infer
 
 class obj:
     def __init__(self, dict1):
@@ -38,17 +39,20 @@ def main(args):
     std = np.array([0.229, 0.224, 0.225])
     cnt = 0
     i = 0
-    for image_path in os.listdir("./data/test_data/raw")[:500]:
+    for image_path in os.listdir("./data/20cities/test_data/raw")[:500]:
         if not (image_path.endswith("png") or image_path.endswith("jpg")): continue
-        image = cv2.imread(os.path.join("./data/test_data/raw/", image_path))
+        image = cv2.imread(os.path.join("./data/20cities/test_data/raw/", image_path))
         image_c = image.copy()
         img = image.copy()
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = torch.from_numpy(image)
         image = image.unsqueeze(0).float().to(device)
         image = image.permute(0, 3, 1, 2)
+        image = image/255
+        image = tvf.normalize(image, mean=mean, std=std)
         with torch.no_grad():
-            h, out, _, _, _, _ = net(image, seg=False)
-        pred_nodes, pred_edges, _, pred_nodes_box, pred_nodes_box_score,\
+            h, out, _ = net(image, seg=False)
+        pred_nodes, pred_edges, pred_nodes_box, pred_nodes_box_score,\
         pred_nodes_box_class, pred_edges_box_score, pred_edges_box_class = relation_infer(
             h.detach(), out, net, config.MODEL.DECODER.OBJ_TOKEN, config.MODEL.DECODER.RLN_TOKEN,
             nms=False, map_=True
@@ -65,9 +69,9 @@ def main(args):
             for i_idx, j_idx in edges_:                 
                 n1, n2 = (nodes_[i_idx]*img_size).astype('int32'), (nodes_[j_idx]*img_size).astype('int32')
                 
-                cv2.line(img, (n1[0], n1[1]), (n2[0], n2[1]), (255,255,255), 1)
-                cv2.circle(img, (n1[0], n1[1]), 2, (0,255,0), -1)
-                cv2.circle(img, (n2[0], n2[1]), 2, (0,255,0), -1)
+                cv2.line(img, (n1[1], n1[0]), (n2[1], n2[0]), (255,255,255), 1)
+                cv2.circle(img, (n1[1], n1[0]), 2, (0,255,0), -1)
+                cv2.circle(img, (n2[1], n2[0]), 2, (0,255,0), -1)
         
         save_path = './pred_map/pred/' + image_path
         print(save_path)

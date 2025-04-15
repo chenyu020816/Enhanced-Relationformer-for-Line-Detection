@@ -75,7 +75,7 @@ def test(args):
     net = build_model(config).to(device)
 
     test_ds = build_road_network_data(
-        config, mode='test'
+        config, mode='train'
     )
 
     test_loader = DataLoader(test_ds,
@@ -115,7 +115,7 @@ def test(args):
                 h.detach(), out, net, config.MODEL.DECODER.OBJ_TOKEN, config.MODEL.DECODER.RLN_TOKEN,
                 nms=False, map_=True
             )
-
+            pdb.set_trace()
             # Add smd of current batch elem
             ret = metric_smd(nodes, edges, pred_nodes, pred_edges)
             smd_results += ret.tolist()
@@ -153,7 +153,7 @@ def test(args):
             for node_, edge_, pred_node_, pred_edge_ in zip(nodes, edges, pred_nodes, pred_edges):
                 topo_results.append(compute_topo(node_.cpu(), edge_.cpu(), pred_node_, pred_edge_))
     
-    pdb.set_trace()
+    # pdb.set_trace()
     topo_array=np.array(topo_results)
     print(topo_array.mean(0))
     # Determine smd

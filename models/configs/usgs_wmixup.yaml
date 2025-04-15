@@ -78,7 +78,7 @@ TRAIN:
 
 
 log:
-  exp_name: 'usgs_womixup_wohide'
+  exp_name: 'usgs_wmixup'
   message: "Baseline 2D relationformer for 2D sat network"
 
 AUG:
