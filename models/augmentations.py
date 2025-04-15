@@ -620,7 +620,7 @@ def random_add_point(data: LineData, max_add_point_num=5, min_points_dist=20, rm
     trans_graph = graph.copy()
     trans_graph.update_graph(new_points, new_lines)
     trans_graph = randomize_points_order(trans_graph)
-    trans_graph = prune_graph(trans_graph, 160)
+    # trans_graph = prune_graph(trans_graph, 160)
     newLineData = LineData(image, trans_graph)
     newLineData = add_padding(newLineData, padding)
     return newLineData
