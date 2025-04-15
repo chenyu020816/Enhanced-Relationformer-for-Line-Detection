@@ -159,7 +159,7 @@ def build_trainer(train_loader, net, seg_net, loss, optimizer, scheduler, writer
         ),
         ValidationHandler(
             validator=evaluator,
-            interval=config.TRAIN.VAL_INTERVAL,
+            interval=1,
             epoch_level=True
         ),
         StatsHandler(

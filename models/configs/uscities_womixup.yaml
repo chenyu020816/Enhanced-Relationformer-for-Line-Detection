@@ -57,7 +57,7 @@ MODEL:
     C_NODE: 5
 
 TRAIN:
-  EPOCHS: 100
+  EPOCHS: 50
   LR: 2e-4
   LR_BACKBONE: 2e-5
   WEIGHT_DECAY: 1e-4
@@ -78,11 +78,11 @@ TRAIN:
 
 
 log:
-  exp_name: '20cities_womixup'
+  exp_name: '20cities_womixup_new'
   message: "Baseline 2D relationformer for 2D sat network"
 
 AUG:
-  END_EPOCH: 80
+  END_EPOCH: 40
   TYPE: 'strong'
   FULL_AUG: False
   MIXUP: False
