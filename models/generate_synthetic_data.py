@@ -80,7 +80,7 @@ def main(args):
             if mixup > 0: # and random.random() > 0.7:
                 indices = random.sample(range(len(data_dicts)), 3)
                 datas = []
-                datas.append(data)
+                datas.append(line_data)
                 for idx in indices: 
                     data = data_dicts[idx]
                     line_data = get_linedata(data)
@@ -156,5 +156,5 @@ if __name__ ==  "__main__":
     parser.add_argument('--aug_size', type=int, required=True)
     parser.add_argument('--mixup', type=int, default=0)
     args = parser.parse_args()
-
+    assert args.aug_size >= args.mixup, "Error"
     main(args)

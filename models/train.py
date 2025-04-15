@@ -61,6 +61,7 @@ def main(args):
     from models.matcher import build_matcher
     from losses import SetCriterion
     from ignite.contrib.handlers.tqdm_logger import ProgressBar
+    from monai.handlers import StatsHandler, TensorBoardStatsHandler
     from ignite.metrics import RunningAverage
 
     torch.backends.cudnn.benchmark = True
@@ -183,6 +184,15 @@ def main(args):
     )
     logger = logging.getLogger()
     RunningAverage(output_transform=lambda x: x["loss"]["total"]).attach(trainer,'total')
+    RunningAverage(output_transform=lambda x: x["loss"]["total"]).attach(evaluator, 'val_total')
+
+    evaluator.add_event_handler(
+        Events.EPOCH_COMPLETED,
+        StatsHandler(
+            name='evaluator',
+            output_transform=lambda x: x["loss"]["total"]
+        )
+    )
     pbar = ProgressBar()
     pbar.attach(trainer, output_transform= lambda x: {'loss': x["loss"]["total"]})
     # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -191,6 +201,8 @@ def main(args):
         metrics = engine.state.metrics
         log_message = (f"Epoch {engine.state.epoch:4d} completed: "
                     f"total={metrics['total']:.4f}")
+        if 'val_total' in evaluator.state.metrics:
+            log_message += f" | val_total={evaluator.state.metrics['val_total']:.4f}"
         logger.info(log_message)
     trainer.run()
 

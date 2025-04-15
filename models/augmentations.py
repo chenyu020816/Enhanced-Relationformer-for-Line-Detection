@@ -659,7 +659,7 @@ def mosaic(datas: list[LineData], padding=(5, 5), add_aug=True, prop=0.4):
         data = hori_flip(data, p=0.5)
         data = vert_flip(data, p=0.5)
         # data = random_hide(data, max_hide_size=(50, 50), fix_hide_size=True, p=1)
-        data = random_add_point(data, p=0.3, max_add_point_num=10, min_points_dist=10)
+        data = random_add_point(data, p=0.3, max_add_point_num=3, min_points_dist=10)
         data = jpeg_compress(data, p=0.3)
         data = gaussian_blur(data, p=0.3)
         return data
