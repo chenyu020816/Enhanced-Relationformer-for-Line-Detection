@@ -52,6 +52,7 @@ class RelationformerEvaluator(SupervisedEvaluator):
         event_names: Optional[List[Union[str, EventEnum]]] = None,
         event_to_attr: Optional[dict] = None,
         decollate: bool = True,
+        loss_function = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -76,8 +77,9 @@ class RelationformerEvaluator(SupervisedEvaluator):
         )
 
         self.config = kwargs.pop('config')
+        self.loss_function = loss_function
         
-    def _iteration(self, engine, batchdata):
+    def _iteration(self, engine, batchdata, loss_function):
         images, nodes, edges = batchdata[0], batchdata[2], batchdata[3]
         
         # # inputs, targets = self.get_batch(batchdata, image_keys=IMAGE_KEYS, label_keys="label")
@@ -85,7 +87,7 @@ class RelationformerEvaluator(SupervisedEvaluator):
         images = images.to(engine.state.device,  non_blocking=False)
         nodes = [node.to(engine.state.device,  non_blocking=False) for node in nodes]
         edges = [edge.to(engine.state.device,  non_blocking=False) for edge in edges]
-
+        target = {'nodes': nodes, 'edges': edges}
         self.network.eval()
         
         h, out, srcs = self.network(images, seg=False)
@@ -93,7 +95,8 @@ class RelationformerEvaluator(SupervisedEvaluator):
         pred_nodes, pred_edges = relation_infer(
             h.detach(), out, self.network, self.config.MODEL.DECODER.OBJ_TOKEN, self.config.MODEL.DECODER.RLN_TOKEN
         )
-        
+        with torch.no_grad():
+            losses = self.loss_function(h, out, target)
         # if self.config.TRAIN.SAVE_VAL:
         #     root_path = os.path.join(self.config.TRAIN.SAVE_PATH, "runs", '%s_%d' % (self.config.log.exp_name, self.config.DATA.SEED), 'val_samples')
         #     if not os.path.exists(root_path):
@@ -107,10 +110,10 @@ class RelationformerEvaluator(SupervisedEvaluator):
         gc.collect()
         torch.cuda.empty_cache()
         
-        return {"images": images, "nodes": nodes, "edges": edges, "pred_nodes":pred_nodes, "pred_edges":pred_edges}
+        return {"images": images, "nodes": nodes, "edges": edges, "pred_nodes":pred_nodes, "pred_edges":pred_edges, "loss": losses}
 
 
-def build_evaluator(val_loader, net, optimizer, scheduler, writer, config, device):
+def build_evaluator(val_loader, net, optimizer, scheduler, writer, config, device, loss_function):
     """[summary]
 
     Args:
@@ -122,7 +125,10 @@ def build_evaluator(val_loader, net, optimizer, scheduler, writer, config, devic
         [type]: [description]
     """
     val_handlers = [
-        StatsHandler(output_transform=lambda x: None),
+        StatsHandler(
+            tag_name="val_loss",
+            output_transform=lambda x: x["loss"]["total"]
+        ),
         CheckpointSaver(
             save_dir=os.path.join(config.TRAIN.SAVE_PATH, "runs", '%s_%d' % (config.log.exp_name, config.DATA.SEED), 'models'),
             save_dict={"net": net, "optimizer": optimizer, "scheduler": scheduler},
@@ -160,6 +166,7 @@ def build_evaluator(val_loader, net, optimizer, scheduler, writer, config, devic
         },
         val_handlers=val_handlers,
         amp=False,
+        loss_function=loss_function
     )
 
     return evaluator

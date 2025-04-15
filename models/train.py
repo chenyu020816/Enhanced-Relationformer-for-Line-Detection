@@ -147,7 +147,8 @@ def main(args):
         scheduler,
         writer,
         config,
-        device
+        device,
+        loss_function=loss
     )
     trainer = build_trainer(
         train_loader,
@@ -186,13 +187,13 @@ def main(args):
     RunningAverage(output_transform=lambda x: x["loss"]["total"]).attach(trainer,'total')
     RunningAverage(output_transform=lambda x: x["loss"]["total"]).attach(evaluator, 'val_total')
 
-    evaluator.add_event_handler(
-        Events.EPOCH_COMPLETED,
-        StatsHandler(
-            name='evaluator',
-            output_transform=lambda x: x["loss"]["total"]
-        )
-    )
+    # evaluator.add_event_handler(
+    #     Events.EPOCH_COMPLETED,
+    #     StatsHandler(
+    #         name='evaluator',
+    #         output_transform=lambda x: x["loss"]["total"]
+    #     )
+    # )
     pbar = ProgressBar()
     pbar.attach(trainer, output_transform= lambda x: {'loss': x["loss"]["total"]})
     # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
