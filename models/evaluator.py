@@ -79,7 +79,7 @@ class RelationformerEvaluator(SupervisedEvaluator):
         self.config = kwargs.pop('config')
         self.loss_function = loss_function
         
-    def _iteration(self, engine, batchdata, loss_function):
+    def _iteration(self, engine, batchdata):
         images, nodes, edges = batchdata[0], batchdata[2], batchdata[3]
         
         # # inputs, targets = self.get_batch(batchdata, image_keys=IMAGE_KEYS, label_keys="label")
