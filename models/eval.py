@@ -14,6 +14,8 @@ from models import build_model
 from models.matcher import build_matcher
 from losses import SetCriterion
 from utils import image_graph_collate_road_network
+from topo_metrics import *
+
 
 def main(args):
     with open(args.config) as f:
