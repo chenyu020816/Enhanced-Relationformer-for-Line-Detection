@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from monai.data import DataLoader
 import os
+import pdb
 import torch
 from tqdm import tqdm
 import yaml
@@ -84,13 +85,16 @@ def main(args):
             print("Completeness:", completeness(gt_edges_np, mapped_pred_edges))
             print("APLS:", compute_apls(G_gt, G_pred))
 
+            pdb.set_trace()
+
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument('--config',
                         default=None,
                         help='config file (.yml) containing the hyper-parameters for training. '
                             'If None, use the nnU-Net config. See /config for examples.')
-    parser.add_argument('--resume', default=None, help='checkpoint of the last epoch of the model')
+    parser.add_argument('--checkpoint', default=None, help='checkpoint of the last epoch of the model')
     parser.add_argument('--device', default='cuda',
                         help='device to use for training')
     parser.add_argument('--cuda_visible_device', nargs='*', type=int, default=[0,1],
