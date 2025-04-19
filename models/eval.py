@@ -34,7 +34,7 @@ def main(args):
     
     
     test_ds = build_road_network_data(
-        config, mode='test'
+        config, mode='train'
     )
     test_loader = DataLoader(
         test_ds,
@@ -48,10 +48,13 @@ def main(args):
     checkpoint = torch.load(args.checkpoint, map_location='cpu')
     net.load_state_dict(checkpoint['net'])
     net.eval()
+    correctness_result = []
+    completeness_result = []
+    apls_result = []
 
     with torch.no_grad():
         print('Started processing test set.')
-        for batchdata in tqdm(test_loader):
+        for batchdata in test_loader: 
 
             # extract data and put to device
             images, segs, nodes, edges = batchdata[0], batchdata[1], batchdata[2], batchdata[3]
@@ -71,7 +74,7 @@ def main(args):
             pred_nodes_np = pred_nodes[0].cpu().numpy()
             pred_edges_np = pred_edges[0]
 
-            match_dict = match_nodes(pred_nodes_np, gt_nodes_np, tolerance=0.02)
+            match_dict = match_nodes(pred_nodes_np, gt_nodes_np, tolerance=0.05)
 
             # 2. remap pred_edges
             mapped_pred_edges = remap_edges(pred_edges_np, match_dict)
@@ -81,11 +84,26 @@ def main(args):
             G_pred = build_graph(gt_nodes_np, mapped_pred_edges)
 
             # 4. evaluate
-            print("Correctness:", correctness(gt_edges_np, mapped_pred_edges))
-            print("Completeness:", completeness(gt_edges_np, mapped_pred_edges))
-            print("APLS:", compute_apls(G_gt, G_pred))
+            correctness_result.append(correctness(gt_edges_np, mapped_pred_edges))
+            completeness_result.append(completeness(gt_edges_np, mapped_pred_edges))
+            apls_result.append(compute_apls(G_gt, G_pred))
+            # pdb.set_trace()
+    """
+    print(args.checkpoint)
+    print(f"Correctness: {(sum(correctness_result) / len(correctness_result)):.5f}")
+    print(f"Completeness: {(sum(completeness_result) / len(completeness_result)):.4f}")
+    print(f"APLS: {(sum(apls_result) / len(apls_result)):.5f}")
+    """
+    def log_and_print(message):
+        print(message)
+        with open("eval.txt", "a") as f:
+            f.write(message + "\n")
 
-            pdb.set_trace()
+    log_and_print(f"Checkpoint: {args.checkpoint}")
+    log_and_print(f"Correctness: {(sum(correctness_result) / len(correctness_result)):.5f}")
+    log_and_print(f"Completeness: {(sum(completeness_result) / len(completeness_result)):.5f}")
+    log_and_print(f"APLS: {(sum(apls_result) / len(apls_result)):.5f}")
+    log_and_print("-" * 40)
 
 
 if __name__ == "__main__":

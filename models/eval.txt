@@ -1,0 +1,36 @@
+Checkpoint: ./trained_weights/runs/usgs_fullaug_new_waddpoint_wprune_mu60_42/models/checkpoint_epoch=50.pt
+Correctness: 0.66190
+Completeness: 0.61485
+APLS: 0.89805
+----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_fullaug_new_woaddpoint_mu60_42/models/checkpoint_epoch=50.pt
+Correctness: 0.60636
+Completeness: 0.54968
+APLS: 0.81419
+----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_fullaug_new_woaddpoint_mu60_largelr1e3_42/models/checkpoint_epoch=50.pt
+Correctness: 0.10573
+Completeness: 0.02509
+APLS: 0.62936
+----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_fullaug_new_woaddpoint_mu60_allaug_42/models/checkpoint_epoch=50.pt
+Correctness: 0.56499
+Completeness: 0.54136
+APLS: 0.79726
+----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_fullaug_new_waddpoint_woprune_mu60_42/models/checkpoint_epoch=50.pt
+Correctness: 0.61616
+Completeness: 0.57783
+APLS: 0.85608
+----------------------------------------
+
+Checkpoint: ./trained_weights/runs/usgs_fullaug_new_mu100_42/models/checkpoint_epoch=50.pt
+Correctness: 0.68130
+Completeness: 0.64333
+APLS: 0.89958
+----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_fullaug_new_woaddpoint_mu60_smlr1e4_42/models/checkpoint_epoch=50.pt
+Correctness: 0.65784
+Completeness: 0.63035
+APLS: 0.86132
+----------------------------------------

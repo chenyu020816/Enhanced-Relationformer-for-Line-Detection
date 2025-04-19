@@ -115,7 +115,7 @@ def test(args):
                 h.detach(), out, net, config.MODEL.DECODER.OBJ_TOKEN, config.MODEL.DECODER.RLN_TOKEN,
                 nms=False, map_=True
             )
-            pdb.set_trace()
+            # pdb.set_trace()
             # Add smd of current batch elem
             ret = metric_smd(nodes, edges, pred_nodes, pred_edges)
             smd_results += ret.tolist()
