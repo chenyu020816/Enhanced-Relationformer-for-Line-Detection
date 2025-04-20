@@ -1,0 +1,25 @@
+Checkpoint: ./trained_weights/runs/usgs_fullaug_final_42/models/checkpoint_epoch=100.pt
+Correctness: 0.61136
+Completeness: 0.63058
+APLS: 0.93048
+----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_woaug_final_42/models/checkpoint_epoch=100.pt
+Correctness: 0.50216
+Completeness: 0.44889
+APLS: 0.78484
+----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_woaug_final_42/models/checkpoint_epoch=100.pt
+Correctness: 0.48946
+Completeness: 0.42722
+APLS: 0.81397
+----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_woaug_final_42/models/checkpoint_epoch=100.pt
+Correctness: 0.49352
+Completeness: 0.44355
+APLS: 0.79320
+----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_fullaug_final_42/models/checkpoint_epoch=100.pt
+Correctness: 0.58337
+Completeness: 0.59486
+APLS: 0.93208
+----------------------------------------

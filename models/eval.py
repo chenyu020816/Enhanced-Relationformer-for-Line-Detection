@@ -74,7 +74,7 @@ def main(args):
             pred_nodes_np = pred_nodes[0].cpu().numpy()
             pred_edges_np = pred_edges[0]
 
-            match_dict = match_nodes(pred_nodes_np, gt_nodes_np, tolerance=0.05)
+            match_dict = match_nodes(pred_nodes_np, gt_nodes_np, tolerance=0.1)
 
             # 2. remap pred_edges
             mapped_pred_edges = remap_edges(pred_edges_np, match_dict)
@@ -96,7 +96,7 @@ def main(args):
     """
     def log_and_print(message):
         print(message)
-        with open("eval.txt", "a") as f:
+        with open("final_eval.txt", "a") as f:
             f.write(message + "\n")
 
     log_and_print(f"Checkpoint: {args.checkpoint}")

@@ -4,6 +4,7 @@ import json
 import torch
 import torchvision.transforms.functional as tvf
 import os
+import random
 import yaml 
 import numpy as np
 
@@ -29,19 +30,26 @@ def main(args):
     torch.backends.cudnn.enabled = True
     torch.multiprocessing.set_sharing_strategy('file_system')
     device = torch.device("cuda") if args.device=='cuda' else torch.device("cpu")
-    
+    random.seed(42)    
     net = build_model(config).to(device)
     checkpoint = torch.load(args.checkpoint, map_location='cpu')
     net.load_state_dict(checkpoint['net'])
     net.eval()
-    
+    os.makedirs(os.path.join(args.save_folder, "pred"), exist_ok = True)
+    os.makedirs(os.path.join(args.save_folder, "gt"), exist_ok = True)	
     mean = np.array([0.485, 0.456, 0.406])
     std = np.array([0.229, 0.224, 0.225])
     cnt = 0
     i = 0
-    for image_path in os.listdir("./data/20cities/test_data/raw")[:500]:
+    folder = "./data/train_data"
+    raw_images = os.listdir(os.path.join(folder, "raw"))
+    raw_images = sorted(raw_images)
+    img_ind = [random.randint(1, len(raw_images) - 1) for _ in range(142)]
+    selected_images = [raw_images[i] for i in img_ind]
+
+    for image_path in selected_images:
         if not (image_path.endswith("png") or image_path.endswith("jpg")): continue
-        image = cv2.imread(os.path.join("./data/20cities/test_data/raw/", image_path))
+        image = cv2.imread(os.path.join(folder, "raw/", image_path))
         image_c = image.copy()
         img = image.copy()
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -69,15 +77,15 @@ def main(args):
             for i_idx, j_idx in edges_:                 
                 n1, n2 = (nodes_[i_idx]*img_size).astype('int32'), (nodes_[j_idx]*img_size).astype('int32')
                 
-                cv2.line(img, (n1[1], n1[0]), (n2[1], n2[0]), (255,255,255), 1)
-                cv2.circle(img, (n1[1], n1[0]), 2, (0,255,0), -1)
-                cv2.circle(img, (n2[1], n2[0]), 2, (0,255,0), -1)
+                cv2.line(img, (n1[1], n1[0]), (n2[1], n2[0]), (0,0,255), 1)
+                cv2.circle(img, (n1[1], n1[0]), 3, (0,255,0), -1)
+                cv2.circle(img, (n2[1], n2[0]), 3, (0,255,0), -1)
         
-        save_path = './pred_map/pred/' + image_path
-        print(save_path)
+        save_path = f'./{args.save_folder}/pred/' + image_path
+        # print(save_path)
         cv2.imwrite(save_path, img)
-        cv2.imwrite(f'./pred_map/gt/{image_path}', image_c)
-        print('*** save the predicted map in {} ***'.format(save_path))
+        cv2.imwrite(f'./{args.save_folder}/gt/{image_path}', image_c)
+        # print('*** save the predicted map in {} ***'.format(save_path))
         i += 1
 
 
@@ -94,6 +102,7 @@ if __name__ == '__main__':
                             help='list of index where skip conn will be made.')
     parser.add_argument('--buffer', type=int, default=10,
                             help='the buffer size for nodes conflation')
+    parser.add_argument('--save_folder', type=str)
 
 
     args = parser.parse_args()

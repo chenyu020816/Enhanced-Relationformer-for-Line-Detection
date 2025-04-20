@@ -34,3 +34,8 @@ Correctness: 0.65784
 Completeness: 0.63035
 APLS: 0.86132
 ----------------------------------------
+Checkpoint: ./trained_weights/runs/usgs_fullaug_final_42/models/checkpoint_epoch=100.pt
+Correctness: 0.59268
+Completeness: 0.59574
+APLS: 0.92398
+----------------------------------------
